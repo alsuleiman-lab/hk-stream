@@ -1,0 +1,125 @@
+uniform float4x4 ViewProj;
+uniform texture2d image;
+
+uniform float2 dimensions;
+uniform float2 source_dimensions;
+uniform float2 pad_offset;
+uniform float2 crop_origin;
+uniform float2 crop_dimensions;
+uniform float border_enabled;
+uniform float border_thickness;
+uniform float corner_radius;
+uniform float4 border_color;
+
+uniform float shadow_enabled;
+uniform float4 shadow_color;
+uniform float shadow_blur;
+uniform float2 shadow_offset;
+
+sampler_state textureSampler {
+	Filter   = Linear;
+	AddressU = Clamp;
+	AddressV = Clamp;
+};
+
+struct VertData {
+	float4 pos : POSITION;
+	float2 uv  : TEXCOORD0;
+};
+
+VertData VSDefault(VertData v_in)
+{
+	VertData vert_out;
+	vert_out.pos = mul(float4(v_in.pos.xyz, 1.0), ViewProj);
+	vert_out.uv = v_in.uv;
+	return vert_out;
+}
+
+float RoundedRectDistance(float2 p, float2 half_size, float radius)
+{
+	float2 q = abs(p) - half_size + radius;
+	return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
+}
+
+float4 PSBorder(VertData v_in) : TARGET
+{
+	float2 pixel_pos = v_in.uv * dimensions;
+	float2 source_half = crop_dimensions * 0.5;
+	float2 source_center = pad_offset + crop_origin + source_half;
+	float2 p = pixel_pos - source_center;
+
+	// Fix color channel byte order (BGR -> RGB)
+	float4 real_border_color = float4(border_color.b, border_color.g, border_color.r, border_color.a);
+	float4 real_shadow_color = float4(shadow_color.b, shadow_color.g, shadow_color.r, shadow_color.a);
+
+	float radius = min(corner_radius, min(source_half.x, source_half.y));
+
+	// 1. Soft Drop Shadow calculation
+	float4 shadow_res = float4(0.0, 0.0, 0.0, 0.0);
+	if (shadow_enabled > 0.5 && real_shadow_color.a > 0.0) {
+		float2 shadow_p = p - shadow_offset;
+		float shadow_dist = RoundedRectDistance(shadow_p, source_half, radius);
+		float blur = max(shadow_blur, 1.0);
+		float shadow_alpha = 1.0 - smoothstep(-blur * 0.2, blur, shadow_dist);
+		shadow_res = real_shadow_color;
+		shadow_res.a *= saturate(shadow_alpha);
+	}
+
+	// 2. Outer vs Inner geometry:
+	// Outer border bounds = source_half with outer corner radius
+	float outer_dist = RoundedRectDistance(p, source_half, radius);
+	float outer_antialias = max(abs(ddx(outer_dist)) + abs(ddy(outer_dist)), 0.75);
+	float outer_cov = 1.0 - smoothstep(-outer_antialias, outer_antialias, outer_dist);
+
+	// Content area is strictly inside: source_half - border_thickness
+	float is_border = (border_enabled > 0.5 && border_thickness > 0.0) ? 1.0 : 0.0;
+	float2 content_half = (is_border > 0.5) ? max(source_half - border_thickness, 1.0) : source_half;
+	float content_radius = (is_border > 0.5) ? max(radius - border_thickness, 0.0) : radius;
+
+	float content_dist = RoundedRectDistance(p, content_half, content_radius);
+	float content_antialias = max(abs(ddx(content_dist)) + abs(ddy(content_dist)), 0.75);
+	float content_cov = 1.0 - smoothstep(-content_antialias, content_antialias, content_dist);
+	if (is_border < 0.5) {
+		content_cov = outer_cov;
+	}
+
+	// Sample only the visible crop, keeping the border aligned to its edges.
+	float2 content_uv = (p + content_half) / (content_half * 2.0);
+	content_uv = (crop_origin + content_uv * crop_dimensions) / source_dimensions;
+	float4 source_color = float4(0.0, 0.0, 0.0, 0.0);
+	if (content_uv.x >= 0.0 && content_uv.x <= 1.0 && content_uv.y >= 0.0 && content_uv.y <= 1.0) {
+		source_color = image.Sample(textureSampler, content_uv);
+	}
+	source_color.a *= content_cov;
+	source_color.rgb *= content_cov;
+
+	// 3. Border coverage (strictly on the outside of the content, from content_half to source_half)
+	float border_coverage = 0.0;
+	if (is_border > 0.5) {
+		border_coverage = saturate(outer_cov - content_cov);
+	}
+
+	float border_alpha = real_border_color.a * border_coverage;
+	float3 border_rgb = real_border_color.rgb * border_alpha;
+
+	// Composite content (border and source do NOT overlap!)
+	float3 content_rgb = border_rgb + source_color.rgb * (1.0 - border_alpha);
+	float content_alpha = border_alpha + source_color.a * (1.0 - border_alpha);
+
+	// Composite content over shadow
+	float shadow_factor = 1.0 - outer_cov;
+	float3 shadow_rgb = real_shadow_color.rgb * (shadow_res.a * shadow_factor);
+	float3 final_rgb = content_rgb + shadow_rgb;
+	float final_alpha = saturate(content_alpha + shadow_res.a * shadow_factor);
+
+	return float4(final_rgb, final_alpha);
+}
+
+technique Draw
+{
+	pass
+	{
+		vertex_shader = VSDefault(v_in);
+		pixel_shader = PSBorder(v_in);
+	}
+}

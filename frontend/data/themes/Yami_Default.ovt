@@ -1,0 +1,258 @@
+/* ------------------------------------------------------------------------- *
+ *                                                                           *
+ *                 Royal Emerald & Mocha (الفخامة الملكية)                   *
+ *                     Cream, Rich Mocha & Forest Emerald                    *
+ *                                                                           *
+ * ------------------------------------------------------------------------- */
+
+@OBSThemeMeta {
+    name: 'Royal Emerald & Mocha (Yami Variant)';
+    id: 'com.obsproject.Yami.Original';
+    extends: 'com.obsproject.Yami';
+    author: 'Luxury Style';
+    dark: 'true';
+}
+
+@OBSThemeVars {
+    /* Rich Warm Earth & Espresso Palette (Substituted for greys) */
+    --grey1: #BAA492; /* Light Cashmere Border */
+    --grey2: #846D5C; /* Warm Mocha Tan */
+    --grey3: #584235; /* Medium Roast Cocoa */
+    --grey4: #3E2D23; /* Deep Mocha Border */
+    --grey5: #2B1D16; /* Dark Cocoa Surface & Inputs */
+    --grey6: #20150F; /* Rich Espresso Panel & Docks */
+    --grey7: #160D09; /* Deep Velvet Window BG */
+    --grey8: #0C0704; /* Darkest Caviar / Preview Canvas */
+
+    /* Royal Emerald & Forest Green Palette (Primary Accents) */
+    --green1: #6EBA8D; /* Laurel Soft Green */
+    --green2: #4CA370; /* Vibrant Emerald Accent */
+    --green3: #2F8356; /* Rich Imperial Emerald */
+    --green4: #216742; /* Deep Forest Green */
+    --green5: #174D30; /* Dark Forest Pine */
+    --green6: #0E331F; /* Deepest Forest */
+
+    /* Antique Gold & Bronze Highlights */
+    --yellow1: #E4C896; /* Pale Gold */
+    --yellow2: #D4AF37; /* Royal Gold */
+    --yellow3: #B88E4B; /* Antique Bronze Gold */
+    --yellow4: #9A7235; /* Dark Amber Bronze */
+    --yellow5: #7A5824; /* Deep Bronze */
+    --yellow6: #5A3E15; /* Earth Bronze */
+
+    /* Cream & Alabaster Text (Substituted for whites) */
+    --white1: #FDFBF7; /* Pure Warm Alabaster - crisp primary text */
+    --white2: #F4EFE6; /* Soft Cream Velvet - secondary text */
+    --white3: #E6DCCF; /* Warm Ivory - labels & icons */
+    --white4: #C5B6A5; /* Cashmere Sand - muted text */
+    --white5: #9C8C7C; /* Soft Earth Taupe - disabled text */
+
+    /* Base Theme Overrides */
+    --bg_window: var(--grey7);
+    --bg_base: var(--grey6);
+    --bg_preview: var(--grey8);
+
+    --primary: #1C4430;          /* Deep Royal Forest Green */
+    --primary_light: #285E42;    /* Lush Forest Green */
+    --primary_lighter: #3B825C;  /* Vibrant Emerald Accent */
+    --primary_dark: #143324;     /* Dark Pine */
+    --primary_darker: #0D2218;   /* Midnight Forest */
+
+    --text: var(--white1);
+    --text_light: var(--white1);
+    --text_muted: var(--white4);
+    --text_disabled: var(--white5);
+    --text_inactive: #A69585;
+
+    --highlight_color: #B88E4B;   /* Antique Gold / Bronze highlight */
+
+    /* Controls & Inputs */
+    --input_bg: var(--grey5);
+    --input_bg_hover: #35241C;
+    --input_bg_focus: #35241C;
+    --input_border: var(--grey4);
+    --input_border_hover: var(--grey3);
+    --input_border_focus: var(--primary_lighter);
+
+    --button_bg: #281B14;
+    --button_bg_hover: #1F4A34;   /* Royal Emerald hover effect */
+    --button_bg_down: #143324;    /* Deep Forest active effect */
+    --button_bg_disabled: var(--grey6);
+    --button_border: var(--grey4);
+    --button_border_hover: #3B825C;
+    --button_border_focus: var(--primary_lighter);
+
+    --list_item_bg_selected: #1C4430;
+    --list_item_bg_hover: #2B1E17;
+
+    --tab_bg: var(--grey6);
+    --tab_bg_hover: #2B1E17;
+    --tab_bg_down: var(--grey7);
+    --tab_border: var(--grey4);
+    --tab_border_hover: var(--primary_light);
+    --tab_border_focus: var(--primary_lighter);
+    --tab_border_selected: var(--primary_lighter);
+
+    --scrollbar_handle: var(--grey4);
+    --scrollbar_hover: #285E42;
+    --scrollbar_down: #1C4430;
+    --scrollbar_border: var(--grey5);
+
+    --toolbutton_bg: var(--grey5);
+    --toolbutton_bg_hover: #1F4A34;
+    --toolbutton_bg_down: #143324;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Luxury Styling Rules & Accents                                            *
+ * ------------------------------------------------------------------------- */
+
+/* Menus */
+QMenu {
+    background-color: var(--grey6);
+    border: 1px solid var(--grey4);
+    color: var(--white1);
+    padding: 4px;
+}
+
+QMenu::item {
+    padding: 6px 24px 6px 12px;
+    border-radius: 4px;
+    color: var(--white2);
+}
+
+QMenu::item:selected {
+    background-color: var(--primary);
+    color: var(--white1);
+}
+
+QMenu::separator {
+    background-color: var(--grey4);
+    height: 1px;
+    margin: 4px 6px;
+}
+
+/* Docks */
+QDockWidget {
+    color: var(--white1);
+    titlebar-close-icon: url(theme:Dark/close.svg);
+    titlebar-normal-icon: url(theme:Dark/popout.svg);
+}
+
+QDockWidget::title {
+    background-color: var(--grey6);
+    color: var(--white2);
+    border-bottom: 1px solid var(--grey4);
+    padding: 6px 8px;
+    font-weight: 600;
+}
+
+QDockWidget::close-button:hover,
+QDockWidget::float-button:hover {
+    background: var(--grey4);
+    border-radius: 3px;
+}
+
+/* Tool Buttons */
+QToolButton,
+QPushButton[toolButton="true"] {
+    background-color: var(--toolbutton_bg);
+    border: 1px solid var(--button_border);
+    border-radius: 4px;
+    color: var(--white1);
+}
+
+QToolButton:hover,
+QPushButton[toolButton="true"]:hover {
+    background-color: var(--toolbutton_bg_hover);
+    border-color: var(--button_border_hover);
+}
+
+QToolButton:pressed,
+QPushButton[toolButton="true"]:pressed {
+    background-color: var(--toolbutton_bg_down);
+    border-color: var(--toolbutton_bg_down);
+}
+
+/* Status Bar */
+QStatusBar {
+    background-color: var(--grey7);
+    color: var(--white3);
+    border-top: 1px solid var(--grey4);
+}
+
+/* Tab Bar */
+QTabBar::tab {
+    background-color: var(--grey6);
+    color: var(--white3);
+    border: 1px solid var(--grey4);
+    border-bottom: none;
+    padding: 6px 14px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    margin-right: 2px;
+}
+
+QTabBar::tab:selected {
+    background-color: var(--grey5);
+    color: var(--white1);
+    border-top: 2px solid var(--primary_lighter);
+}
+
+QTabBar::tab:hover:!selected {
+    background-color: #281C15;
+    color: var(--white1);
+}
+
+/* Scrollbars */
+QScrollBar:vertical {
+    background: var(--grey7);
+    width: 10px;
+    margin: 0;
+}
+
+QScrollBar::handle:vertical {
+    background: var(--grey4);
+    min-height: 24px;
+    border-radius: 5px;
+    margin: 2px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: var(--primary_light);
+}
+
+QScrollBar:horizontal {
+    background: var(--grey7);
+    height: 10px;
+    margin: 0;
+}
+
+QScrollBar::handle:horizontal {
+    background: var(--grey4);
+    min-width: 24px;
+    border-radius: 5px;
+    margin: 2px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: var(--primary_light);
+}
+
+QScrollBar::add-line, QScrollBar::sub-line {
+    width: 0;
+    height: 0;
+}
+
+/* List & Tree Items */
+QListView::item:selected,
+QTreeView::item:selected {
+    background-color: var(--primary);
+    color: var(--white1);
+    border-left: 3px solid var(--highlight_color);
+}
+
+QListView::item:hover:!selected,
+QTreeView::item:hover:!selected {
+    background-color: #291D16;
+}
